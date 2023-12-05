@@ -31,15 +31,15 @@
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Pembelian</a>
+                            <a class="nav-link active" aria-current="page" href="{{ route('order.data') }}">Pembelian</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{{ route('user.home') }}">Kelola Akun</a>
                         </li>
                         @else
                         <li class="nav-item">
-                            {{-- <a class="nav-link active" aria-current="page" href="{{ route('kasir.order.index') }}">Pembelian</a> --}}
-                            <a class="nav-link active" aria-current="page" href="#">Pembelian</a>
+                            <a class="nav-link active" aria-current="page" href="{{ route('kasir.order.index') }}">Pembelian</a>
+                            {{-- <a class="nav-link active" aria-current="page" href="#">Pembelian</a> --}}
                         </li>
                     @endif
                     <li class="nav-item">

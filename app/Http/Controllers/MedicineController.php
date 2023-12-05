@@ -42,7 +42,7 @@ class MedicineController extends Controller
             'price' => $request->price,
             'stock' => $request->stock,
         ]);
-        
+
         return redirect()->back()->with('success', 'Berhasil Menambah Data Obat!');
     }
 
@@ -82,7 +82,7 @@ class MedicineController extends Controller
             'price' => $request->price,
             'stock' => $request->stock,
         ]);
-        
+
         return redirect()->route('medicine.home')->with('success', 'Berhasil Menambah Data Obat!');
     }
 
