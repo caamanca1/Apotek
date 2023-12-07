@@ -1,0 +1,38 @@
+// Perintah membuat laravel
+composer create-project laravel/laravel nama-project
+
+// Perintah membuat controller-migration-model
+php artisan make:model NamaModel -mcr
+
+// Resource
+index, create, store, show, edit , update, destroy
+
+// Perintah membuat controller
+php artisan make:controller NamaController -r
+
+// Perintah membuat model
+php artisan make:model NamaModel
+
+// Perintah membuat migration
+php artisan make:migration create_namas_table || php artisan make:migration add_columns_to_namas_table
+
+// Perintah menjalan kan migration
+php artisan migrate
+
+// Perintah membuat seeders
+php artisan make:seeder NamaSeeder
+
+// Perintah menjalankan seeder
+php artisan db:seed
+php artisan db:seed --class=NamaSeeder
+
+// Perintah membuat middleware
+php artisan make:middleware NamaMiddleware
+
+// Perintah menjalankan project laravel
+php artisan serve
+php artisan serve --port=8001
+
+
+-Alur
+Browser-request user-routing-controller-model-database-model-controller-view-browser
