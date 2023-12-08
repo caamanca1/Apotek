@@ -55,47 +55,60 @@ class OrderController extends Controller
         foreach ($arrayDistinct as $id => $count) {
             // mencari data obat berdasarkan id (obat yang dipilih)
             $medicines = Medicine::where('id', $id)->first();
-            // ambil bagian column price dr hasil pencarian lalu kalikan dnegan jumlah item duplikat sehingga akan menghasilkan total harga dr pembelian obat tersebut
-            $subPrice = $medicines['price'] * $count;
-            // struktur value column medicines menjadi multidimensi dengan dimensi kedua berbentuk array assoc dengan key "id", "name_medicine", "qty", "price"
-            $arrayItem = [
-                "id" => $id,
-                "name_medicine" => $medicines['name'],
-                "qty" => $count,
-                "price" => $medicines['price'],
-                "sub_price" => $subPrice,
-            ];
-            // masukkan struktur array tersebut ke array kosong yg disediakan sebelumnya
-            array_push($arrayAssosMedicines, $arrayItem);
-        }
-        // total harga pembelian dari obat-obat yg dipilih
-        $totalPrice = 0;
-        // looping format array medicines baru
-        foreach($arrayAssosMedicines as $item) {
+            if ($medicines && $medicines->stock >= $count) {
+                // ambil bagian column price dr hasil pencarian lalu kalikan dnegan jumlah item duplikat sehingga akan menghasilkan total harga dr pembelian obat tersebut
+                $subPrice = $medicines['price'] * $count;
+                // struktur value column medicines menjadi multidimensi dengan dimensi kedua berbentuk array assoc dengan key "id", "name_medicine", "qty", "price"
+                $arrayItem = [
+                    "id" => $id,
+                    "name_medicine" => $medicines['name'],
+                    "qty" => $count,
+                    "price" => $medicines['price'],
+                    "sub_price" => $subPrice,
+                ];
+
+                $getstock = $medicines->stock - $count;
+
+                Medicine::where('id', $id)->update([
+                    'stock' => $getstock,
+                ]);
+
+                // masukkan struktur array tersebut ke array kosong yg disediakan sebelumnya
+                array_push($arrayAssosMedicines, $arrayItem);
+            } else {
+                return redirect()->back()->with('failed', 'Stock Obat Sudah Habis!');
+            }
+            // total harga pembelian dari obat-obat yg dipilih
+            $totalPrice = 0;
+            // looping format array medicines baru
+            foreach($arrayAssosMedicines as $item) {
             // total harga pembelian ditambahkan dr keseluruhan sub_price data medicines
             $totalPrice += (int)$item['sub_price'];
-        }
-        // harga beli ditambah 10% ppn
-        $priceWithPPN = $totalPrice + ($totalPrice * 0.01);
-        // tambah data ke database
-        $proses = Order::create([
+            }
+            // harga beli ditambah 10% ppn
+            $priceWithPPN = $totalPrice + ($totalPrice * 0.01);
+            // tambah data ke database
+            $proses = Order::create([
             // data user_id diambil dari id akun kasir yg sedang login
-            'user_id' => Auth::user()->id,
-            'medicines' => $arrayAssosMedicines,
-            'name_customer' => $request->name_customer,
-            'total_price' => $priceWithPPN,
-        ]);
+                'user_id' => Auth::user()->id,
+                'medicines' => $arrayAssosMedicines,
+                'name_customer' => $request->name_customer,
+                'total_price' => $priceWithPPN,
+            ]);
 
-        if ($proses) {
-            // jika proses tambah data berhasil, ambil data order yg dibuat oleh kasir yg sedang login (where), dengan tanggal paling terbaru (orderBy), ambil hanya satu data (first)
-            $order = Order::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->first();
-            // kirim data order yg diambil td, bagian colum id sebagai parameter path dari route print
-            return redirect()->route('kasir.order.print', $order['id']);
-        } else {
-            // jika tidak berhasil, maka diarahkan kembali ke halamn form dengan pesan pemberitahuan
-            return redirect()->back()->with('failed', 'Gagal membuat data pembelian, silahkan coba kembali dengan data yang sesuai');
+            if ($proses) {
+                // jika proses tambah data berhasil, ambil data order yg dibuat oleh kasir yg sedang login (where), dengan tanggal paling terbaru (orderBy), ambil hanya satu data (first)
+                $order = Order::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->first();
+                // kirim data order yg diambil td, bagian colum id sebagai parameter path dari route print
+                return redirect()->route('kasir.order.print', $order['id']);
+            } else {
+                // jika tidak berhasil, maka diarahkan kembali ke halamn form dengan pesan pemberitahuan
+                return redirect()->back()->with('failed', 'Gagal membuat data pembelian, silahkan coba kembali dengan data yang sesuai');
+            }
         }
+
     }
+
 
     /**
      * Display the specified resource.
@@ -117,9 +130,9 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Order $order)
+    public function update(Request $request, Order $order, $id)
     {
-        //
+
     }
 
     /**
